@@ -12,7 +12,7 @@ struct AVLNode {
 
 ElementType Max(int a, int b);
 
-int GetHeight(AVLTree L);
+int GetHeight(AVLTree A);
 
 bool IsBalanced(AVLTree A);
 

@@ -12,12 +12,7 @@ int Max(int a, int b) {
 
 /*求二叉树的高度*/
 int GetHeight(AVLTree A) {
-	int height = 0;
-	if (A) {
-		return height;
-	}
-	height = Max(GetHeight(A->Left),GetHeight(A->Right))+1;
-	return height;
+	return A == NULL ? -1 : A->Height;
 }
 
 /*判断是否平衡*/
@@ -82,9 +77,8 @@ AVLTree CreateAVLTree(ElementType Root) {
 	return A;
 }
 
-
-//TOUN
 AVLTree Insert(AVLTree T, ElementType X) { /* 将X插入AVL树T中，并且返回调整后的AVL树 */
+	cout << endl << "Insert Data: " << X << endl;
 	if (!T) { /* 若插入空树，则新建包含一个结点的树 */
 		T = (AVLTree)malloc(sizeof(struct AVLNode));
 		T->Data = X;
@@ -114,5 +108,6 @@ AVLTree Insert(AVLTree T, ElementType X) { /* 将X插入AVL树T中，并且返回调整后的A
 	/* else X == T->Data，无须插入 */
 	/* 别忘了更新树高 */
 	T->Height = Max(GetHeight(T->Left), GetHeight(T->Right)) + 1;
+	cout << "Height of After Insert: " << T->Height << endl;
 	return T;
 }

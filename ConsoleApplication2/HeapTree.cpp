@@ -24,16 +24,18 @@ bool IsHeapFull(Heap H) {
 /**
 堆还可以看成一个完全二叉树，每次总是先填满上一层，再在下一层从左往右依次插入。堆的插入步骤：
 	1.将新元素增加到堆的末尾
-	2.按照优先顺序，将新元素与其父节点比较，如果新元素小于父节点则将两者交换位置。
+	2.按照优先顺序，将新元素与其父节点比较，如果新元素大于父节点则将两者交换位置。
 	3.不断进行第2步操作，直到不需要交换新元素和父节点，或者达到堆顶
-	4.最后通过得到一个最小堆
+	4.最后通过得到一个最大堆
 通过将新元素与父节点调整交换的操作叫做上滤(percolate up)。
 **/
-bool InsertMaxHeap(MaxHeap MH, ElementType X) {
+/*T (N) = O ( log N )*/
+MaxHeap InsertMaxHeap(MaxHeap MH, ElementType X) {
 	/*将元素X插入最大堆中，其中MH-Data[0]已经定义为哨兵*/
 	int i;
 	if (IsHeapFull(MH)) {
 		cout << "最大堆已满" << endl;
+		return MH;
 	}
 	for (i = ++MH->Size; MH->Data[i / 2] < X; i /= 2) {
 		MH->Data[i] = MH->Data[i / 2];
@@ -57,13 +59,13 @@ https://blog.csdn.net/juanqinyang/article/details/51418629
 ElementType DeleteMaxHeap(MaxHeap MH) {
 	if (IsHeapEmpty(MH)) {
 		cout << "最大堆已空" << endl;
+		return NULL;
 	}
 	int Parent, Child;
 	ElementType MaxItem, temp;
 	MaxItem = MH->Data[1]; //取出根结点存放的最大值
 	/*用最大堆中最后一个元素从要删除结点开始向上过滤下层结点*/
 	temp = MH->Data[MH->Size--];
-	ElementType last = MH->Data[MH->Size--];
 	for (Parent = 1; Parent * 2 <= MH->Size; Parent = Child) {
 	/*Parent * 2 <= MH->Size==》判断是否有有儿子*/
 		Child = Parent * 2; 
@@ -76,6 +78,7 @@ ElementType DeleteMaxHeap(MaxHeap MH) {
 			MH->Data[Parent] = MH->Data[Child];
 		}
 	}
+	MH->Data[Parent] = temp;
 	return MaxItem;
 }
 
@@ -97,6 +100,22 @@ void PercDown(MaxHeap MH, int p) {
 	MH->Data[Parent] = X;
 }
 
+void PercDownMinHeap(MinHeap H, int p) {
+	int Parent, Child;
+	HuffmanTree X;
+	X = &H->Data[p];
+	for (Parent = p; Parent * 2 <= H->Size; Parent = Child) {
+		Child = Parent * 2;
+		if (Child != H->Size && H->Data[Child].Weight > H->Data[Child + 1].Weight)
+			Child++;
+		if (X->Weight <= H->Data[Child].Weight)
+			break;
+		else
+			H->Data[Parent] = H->Data[Child];
+	}
+	H->Data[Parent] = *X;
+}
+
 void BuildMaxHeap(MaxHeap MH) {
 /*调整MH->Data[]中的元素，使满足最大堆的有序性*/
 /*这里假设所有MH->Size个元素已经存在MH->Data[]中*/
@@ -106,7 +125,82 @@ void BuildMaxHeap(MaxHeap MH) {
 		PercDown(MH, i);
 }
 
+MinHeap CreateMinHeap(int MaxSize){
+	//MinHeap H = (MinHeap)malloc(sizeof(struct HufNode));
+	MinHeap H = (MinHeap)calloc(1,sizeof(HufNode));
+	H->Size = 0;
+	H->Capacity = MaxSize;
+	//H->Data = (TreeNode *)malloc((MaxSize + 1) * sizeof(TreeNode));
+	H->Data = (TreeNode *)calloc((MaxSize + 1),sizeof(TreeNode));
+	H->Data[0].Weight = MINDATA;
+	return H;
+}
+
+MinHeap InsertMinHeap(MinHeap H, HuffmanTree W) {
+	if (H->Size == H->Capacity) {
+		cout << "最小堆已满" << endl;
+		return H;
+	}
+	int i;
+	for (i = ++H->Size; H->Data[i / 2].Weight > W->Weight; i /= 2) {
+		H->Data[i].Weight = H->Data[i / 2].Weight;
+	}
+	H->Data[i] = *W;
+	return H;
+}
+
+HuffmanTree DeleteMinHeap(MinHeap H) {
+	if (H->Size == 0) {
+		cout << "最小堆已空!" << endl;
+		return NULL;
+	}
+	int Parent, Child;
+	HuffmanTree MinItem, temp;
+	MinItem = &H->Data[1];
+	temp = &H->Data[H->Size--];
+	for (Parent = 1; Parent * 2 <= H->Size; Parent = Child) {
+		Child = Parent * 2;
+		if (Child != H->Size && H->Data[Child].Weight > H->Data[Child + 1].Weight) {
+			Child++;
+		}
+		if (temp->Weight < H->Data[Child].Weight)
+			break;
+		else
+			H->Data[Parent] = H->Data[Child];
+	}
+	H->Data[Parent] = *temp;
+	return MinItem;
+}
+
+void BuildMinHeap(MinHeap H) {
+	int i;
+	for (i = H->Size / 2; i > 0; i++) {
+		PercDownMinHeap(H, i);
+	}
+}
+
+/**
+哈夫曼树的定义：
+带权路径长度(WPL)： 设二叉树有n个叶子结点，每个叶子结点带
+有权值 wk，从根结点到每个叶子结点的长度为 lk，则每个叶子结
+点的带权路径长度之和。
+最优二叉树或哈夫曼树: WPL最小的二叉树
+
+哈夫曼树的构造：
+每次把权值最小的两棵二叉树合并
+**/
 HuffmanTree CreateHuffmanTree(MinHeap H) {
-/*假设H->Size个权值已经存在在H->Data[]->Weight里*/
-	return HuffmanTree();
+/*假设H->Size个权值已经存在在H->Data[]里*/
+	int i;
+	HuffmanTree HT;
+	BuildMinHeap(H);
+	for (i = 1; i < H->Size; i++) {
+		HT = (HuffmanTree)malloc(sizeof(TreeNode));
+		HT->Left = DeleteMinHeap(H);
+		HT->Right = DeleteMinHeap(H);
+		HT->Weight = HT->Left->Weight + HT->Right->Weight;
+		InsertMinHeap(H, HT);
+	}
+	HT = DeleteMinHeap(H);
+	return HT;
 }
