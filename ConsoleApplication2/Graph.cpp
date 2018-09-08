@@ -49,7 +49,7 @@ MGraph BuildMGraph() {
 	/* 如果顶点有数据的话，读入数据 */
 	for (V = 0; V < Graph->Nv; V++)
 		cin >> Graph->Data[V];
-	return Graph;
+	return Graph; 
 }
 
 LGraph CreateLinkGraph(int VertexNum) {
