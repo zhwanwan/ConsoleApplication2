@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Graph.h"
+#include "Tree.h"
 #include <iostream>
 
 using namespace std;
@@ -110,4 +111,32 @@ LGraph BuildLGraph() {
 	for (V = 0; V < Graph->Nv; V++)
 		cin >> Graph->G[V].Data;
 	return Graph;
+}
+
+void Visit(Vertex V) {
+	printf("正在访问顶点%d\n", V);
+}
+
+void DFS(LGraph Graph, Vertex V, void(*Visit)(Vertex)) {
+/* 以V为出发点对邻接表存储的图Graph进行DFS搜索 */
+	PtrToAdjVNode W;
+	Visit(V); /* 访问第V个顶点 */
+	Visited[V] = true; /* 标记V已访问 */
+	for (W = Graph->G[V].FirstEdge; W; W = W->Next) {
+		if (!Visited[W->Adjv]) /* 若W->AdjV未被访问 */
+			DFS(Graph, W->Adjv, Visit); /* 则递归访问之 */
+	}
+}
+
+/**
+IsEdge(Graph,V,W)检查<V,W>是否是Graph中的一条边，即W是否V的邻接点
+此函数根据图的不同类型要做不同的实现，关键取决于对不存在的边的表示方法。
+例如对有权图, 如果不存在的边被初始化为MAXSIZE, 则函数实现如下:
+**/
+bool IsEdge(MGraph Graph, Vertex V, Vertex W) {
+	return Graph->G[V][W] < MAXSIZE ? true : false;
+}
+
+void BFS(MGraph Graph, Vertex S, void(*Visit)(Vertex)) {
+	
 }
