@@ -1,9 +1,47 @@
 #include "pch.h"
 #include "Graph.h"
-#include "Tree.h"
 #include <iostream>
 
 using namespace std;
+
+Queue CreateQueue(){
+	Queue Q = (Queue)malloc(sizeof(struct QNode));
+	Q->Front = Q->Rear = NULL;
+	return Q;
+}
+
+bool IsQueueEmpty(Queue Q) {
+	return Q->Front == NULL;
+}
+
+void AddQueue(Queue Q, Vertex V) {
+	VPosition temCell;
+	temCell = (VPosition)malloc(sizeof(struct VNode));
+	temCell->Data = V;
+	Q->Rear->Next = temCell;
+	Q->Rear = temCell;
+}
+
+Vertex DeleteQueue(Queue Q) {
+	VPosition FrontCell;
+	Vertex FrontElem;
+	if (IsQueueEmpty(Q)) {
+		cout << "队列空" << endl;
+		return NULL;
+	}
+	else {
+		FrontCell = Q->Front;
+		FrontElem = FrontCell->Data;
+		if (Q->Front == Q->Rear) {
+			Q->Front = Q->Rear = NULL;
+		}
+		else {
+			Q->Front = Q->Front->Next;
+		}
+		free(FrontCell);
+		return FrontElem;
+	}
+}
 
 MGraph CreateMetrixGraph(int VertexNum) {
 /* 初始化一个有VertexNum个顶点但没有边的图 */
@@ -138,5 +176,22 @@ bool IsEdge(MGraph Graph, Vertex V, Vertex W) {
 }
 
 void BFS(MGraph Graph, Vertex S, void(*Visit)(Vertex)) {
-	
+/* 以S为出发点对邻接矩阵存储的图Graph进行BFS搜索 */
+	Queue Q;
+	Vertex V, W;
+	Q = CreateQueue(); /*创建空队列*/
+	/* 访问顶点S：此处可根据具体访问需要改写 */
+	Visit(S);
+	Visited[S] = true; /* 标记S已访问 */
+	AddQueue(Q, S); /* S入队列 */
+	while (!IsQueueEmpty(Q)) {
+		V = DeleteQueue(Q);
+		for (W = 0; W < Graph->Nv; W++) {
+			if (!Visited[W] && IsEdge(Graph, V, W)) {
+				Visit(W); /* 访问顶点W */
+				Visited[W] = true; /* 标记W已访问 */
+				AddQueue(Q, W); /* W入队列 */
+			}
+		}
+	}
 }

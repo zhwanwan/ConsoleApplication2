@@ -1,3 +1,4 @@
+
 #include "pch.h"
 
 #define MaxVertexNum 100 /*最大顶点数为100*/
@@ -49,6 +50,24 @@ struct AdjGNode {
 	AdjList G; /* 邻接表 */
 };
 typedef PtrToAdjGNode LGraph; /* 以邻接表方式存储的图类型 */
+
+/* 顶点队列(链式)*/
+typedef struct VNode *PtrToVNode;
+struct VNode {
+	Vertex Data;
+	PtrToVNode Next;
+};
+typedef PtrToVNode VPosition;
+struct QNode {
+	VPosition Front, Rear;
+};
+typedef struct QNode *Queue;
+
+Queue CreateQueue();
+bool IsQueueEmpty(Queue Q);
+void AddQueue(Queue Q, Vertex V);
+Vertex DeleteQueue(Queue Q);
+
 
 /*图的邻接矩阵构造*/
 MGraph CreateMetrixGraph(int VertexNum);
