@@ -3,7 +3,7 @@
 
 #define MaxVertexNum 100 /*最大顶点数为100*/
 #define MAXSIZE 65535 /* ∞设为双字节无符号整数的最大值65535*/
-bool Visited[MaxVertexNum] = {false}; /*定义全局变量*/
+
 
 typedef int Vertex;   /* 用顶点下标表示顶点,为整型 */
 typedef int WeightType;  /* 边的权值设为整型 */
@@ -58,15 +58,15 @@ struct VNode {
 	PtrToVNode Next;
 };
 typedef PtrToVNode VPosition;
-struct QNode {
+struct QuNode {
 	VPosition Front, Rear;
 };
-typedef struct QNode *Queue;
+typedef struct QuNode *VQueue;
 
-Queue CreateQueue();
-bool IsQueueEmpty(Queue Q);
-void AddQueue(Queue Q, Vertex V);
-Vertex DeleteQueue(Queue Q);
+VQueue CreateQueue();
+bool IsQueueEmpty(VQueue Q);
+void AddQueue(VQueue Q, Vertex V);
+Vertex DeleteQueue(VQueue Q);
 
 
 /*图的邻接矩阵构造*/
@@ -79,9 +79,10 @@ LGraph CreateLinkGraph(int VertexNum);
 void InsertEdgeToLGraph(LGraph Graph, Edge);
 LGraph BuildLGraph();
 
+
 /* 邻接表存储的图 - DFS */
-void DFS(LGraph Graph, Vertex V, void(*Visit)(Vertex));
+void DFS(LGraph Graph, Vertex V, void(*f)(Vertex));
 
 /* 邻接矩阵存储的图 - BFS */
 bool IsEdge(MGraph Graph, Vertex V, Vertex W);
-void BFS(MGraph Graph, Vertex S, void(*Visit)(Vertex));
+void BFS(MGraph Graph, Vertex S, void(*f)(Vertex));

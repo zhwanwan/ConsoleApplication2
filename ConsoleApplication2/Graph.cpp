@@ -4,25 +4,33 @@
 
 using namespace std;
 
-Queue CreateQueue(){
-	Queue Q = (Queue)malloc(sizeof(struct QNode));
+bool Visited[MaxVertexNum] = { false }; /*定义全局变量*/
+
+VQueue CreateQueue(){
+	VQueue Q = (VQueue)malloc(sizeof(struct QuNode));
 	Q->Front = Q->Rear = NULL;
 	return Q;
 }
 
-bool IsQueueEmpty(Queue Q) {
+bool IsQueueEmpty(VQueue Q) {
 	return Q->Front == NULL;
 }
 
-void AddQueue(Queue Q, Vertex V) {
+void AddQueue(VQueue Q, Vertex V) {
 	VPosition temCell;
 	temCell = (VPosition)malloc(sizeof(struct VNode));
 	temCell->Data = V;
-	Q->Rear->Next = temCell;
-	Q->Rear = temCell;
+	temCell->Next = NULL;
+	if (IsQueueEmpty(Q)) {
+		Q->Front = Q->Rear = temCell;
+	}
+	else {
+		Q->Rear->Next = temCell;
+		Q->Rear = temCell;
+	}
 }
 
-Vertex DeleteQueue(Queue Q) {
+Vertex DeleteQueue(VQueue Q) {
 	VPosition FrontCell;
 	Vertex FrontElem;
 	if (IsQueueEmpty(Q)) {
@@ -79,6 +87,7 @@ MGraph BuildMGraph() {
 		E = (Edge)malloc(sizeof(struct ENode)); /* 建立边结点 */
 		/* 读入边，格式为"起点 终点 权重"，插入邻接矩阵 */
 		for (i = 0; i < Graph->Ne; i++) {
+			cout << "输入：V1 V2 Weight " << endl;
 			cin >> E->V1 >> E->V2 >> E->Weight;
 			/* 注意：如果权重不是整型，Weight的读入格式要改 */
 			InsertEdgeToMGraph(Graph, E);
@@ -123,7 +132,6 @@ void InsertEdgeToLGraph(LGraph Graph, Edge E) {
 	/* 将V1插入V2的表头 */
 	NewNode->Next = Graph->G[E->V2].FirstEdge;
 	Graph->G[E->V2].FirstEdge = NewNode;
-
 }
 
 LGraph BuildLGraph() {
@@ -141,6 +149,7 @@ LGraph BuildLGraph() {
 	if (Graph->Ne > 0) {
 		E = (Edge)malloc(sizeof(struct ENode)); /* 建立边结点 */ 
 		for (i = 0; i < Graph->Ne; i++) {
+			cout << "输入：V1 V2 Weight " << endl;
 			cin >> E->V1 >> E->V2 >> E->Weight;  /* 读入边，格式为"起点 终点 权重"，插入邻接矩阵 */
 			InsertEdgeToLGraph(Graph, E);
 		}
@@ -151,18 +160,16 @@ LGraph BuildLGraph() {
 	return Graph;
 }
 
-void Visit(Vertex V) {
-	printf("正在访问顶点%d\n", V);
-}
 
-void DFS(LGraph Graph, Vertex V, void(*Visit)(Vertex)) {
+
+void DFS(LGraph Graph, Vertex V, void(*f)(Vertex)) {
 /* 以V为出发点对邻接表存储的图Graph进行DFS搜索 */
 	PtrToAdjVNode W;
-	Visit(V); /* 访问第V个顶点 */
+	f(V); /* 访问第V个顶点 */
 	Visited[V] = true; /* 标记V已访问 */
 	for (W = Graph->G[V].FirstEdge; W; W = W->Next) {
 		if (!Visited[W->Adjv]) /* 若W->AdjV未被访问 */
-			DFS(Graph, W->Adjv, Visit); /* 则递归访问之 */
+			DFS(Graph, W->Adjv, f); /* 则递归访问之 */
 	}
 }
 
@@ -175,23 +182,25 @@ bool IsEdge(MGraph Graph, Vertex V, Vertex W) {
 	return Graph->G[V][W] < MAXSIZE ? true : false;
 }
 
-void BFS(MGraph Graph, Vertex S, void(*Visit)(Vertex)) {
+void BFS(MGraph Graph, Vertex S, void(*f)(Vertex)) {
 /* 以S为出发点对邻接矩阵存储的图Graph进行BFS搜索 */
-	Queue Q;
+	VQueue Q;
 	Vertex V, W;
 	Q = CreateQueue(); /*创建空队列*/
 	/* 访问顶点S：此处可根据具体访问需要改写 */
-	Visit(S);
+	f(S);
 	Visited[S] = true; /* 标记S已访问 */
 	AddQueue(Q, S); /* S入队列 */
 	while (!IsQueueEmpty(Q)) {
 		V = DeleteQueue(Q);
 		for (W = 0; W < Graph->Nv; W++) {
 			if (!Visited[W] && IsEdge(Graph, V, W)) {
-				Visit(W); /* 访问顶点W */
+				f(W); /* 访问顶点W */
 				Visited[W] = true; /* 标记W已访问 */
 				AddQueue(Q, W); /* W入队列 */
 			}
 		}
 	}
 }
+
+
